@@ -1,96 +1,93 @@
 from mesa import Model
 from mesa.space import ContinuousSpace
-from mesa.time import RandomActivation
+
+# Scheduler import compatible with Mesa 1.x and 3.x
+try:
+    from mesa.time import RandomActivation          # Mesa 1.x
+except Exception:
+    from mesa.timekeeping import RandomActivation   # Mesa 3.x
+
 from mesa.datacollection import DataCollector
 from .agents import Person, Health
 import random
 
 
-# --- metrics for DataCollector ----------------------------------------------
-
 def count_infected(m):
-    return sum(
-        1 for a in m.schedule.agents
-        if isinstance(a, Person) and a.state == Health.INFECTED
-    )
+    return sum(1 for a in m.schedule.agents if isinstance(a, Person) and a.state == Health.INFECTED)
 
 def count_susceptible(m):
-    return sum(
-        1 for a in m.schedule.agents
-        if isinstance(a, Person) and a.state == Health.SUSCEPTIBLE
-    )
+    return sum(1 for a in m.schedule.agents if isinstance(a, Person) and a.state == Health.SUSCEPTIBLE)
+
+def count_total(m):
+    return sum(1 for _ in m.schedule.agents)
 
 
 class InfectionModel(Model):
     """
-    Minimal infection spread model in continuous 2D space.
+    Continuous-space infection spread model with separated radii:
 
-    Parameters
-    ----------
-    N : int
-        Number of agents.
-    width, height : float
-        Size of the simulation box.
-    speed : float
-        Agent speed per step (units of space per tick).
-    collision_radius : float
-        Neighborhood radius used as a collision / contact proxy.
-    infection_prob : float in [0, 1]
-        Per-step infection probability upon contact with an infected agent.
-    initial_infected : int
-        Number of initially infected agents.
-    vaccinated_rate : float in [0, 1]
-        Fraction of agents initialized as vaccinated (reserved; optional).
-    vaccinated_effect : float in [0, 1]
-        Multiplicative reduction on infection probability for vaccinated.
+    - collision_radius: used only for velocity flip (collision proxy)
+    - contact_radius:   used only for infection proximity
+
+    Distancing scales contact_radius; hygiene scales infection_prob.
     """
 
-    def __init__(self, N=120, width=100, height=100,
-                 speed=1.2, collision_radius=1.5,
-                 infection_prob=0.25, initial_infected=3,
-                 vaccinated_rate=0.0, vaccinated_effect=0.5):
+    def __init__(self,
+                 N=120, width=100, height=100,
+                 speed=2.0,
+                 collision_radius=1.0,
+                 contact_radius=3.0,
+                 infection_prob=0.35,
+                 initial_infected=3,
+                 vaccinated_rate=0.0,
+                 vaccinated_effect=0.5,
+                 hygiene_factor=1.0,
+                 distancing_factor=1.0,
+                 seed=None):
         super().__init__()
+        if seed is not None:
+            random.seed(seed)
 
-        # Domain and scheduler
+        # domain & scheduler
         self.width, self.height = width, height
         self.space = ContinuousSpace(width, height, torus=False)
         self.schedule = RandomActivation(self)
 
-        # Model parameters
-        self.collision_radius = collision_radius
-        self.infection_prob = infection_prob
-        self.vaccinated_effect = vaccinated_effect
+        # parameters
+        self.collision_radius = float(collision_radius)
+        base_contact = float(contact_radius)
+        self.contact_radius = base_contact * max(0.0, float(distancing_factor))
 
-        # Agent initialization
+        self.base_infection_prob = infection_prob
+        self.infection_prob = max(0.0, min(1.0, infection_prob * max(0.0, float(hygiene_factor))))
+        self.vaccinated_effect = max(0.0, min(1.0, vaccinated_effect))
+
+        # agents
+        ids = list(range(N))
+        random.shuffle(ids)
         for i in range(N):
             state = Health.SUSCEPTIBLE
             if i < initial_infected:
                 state = Health.INFECTED
-            elif random.random() < vaccinated_rate:
+            elif random.random() < max(0.0, min(1.0, vaccinated_rate)):
                 state = Health.VACCINATED
 
-            a = Person(i, self, speed=speed, state=state)
+            a = Person(ids[i], self, speed=speed, state=state)
             self.schedule.add(a)
-            self.space.place_agent(
-                a, (random.uniform(0, width), random.uniform(0, height))
-            )
+            self.space.place_agent(a, (random.uniform(0, width), random.uniform(0, height)))
 
-        # Time-series collection for plots
+        # data
         self.datacollector = DataCollector(model_reporters={
             "Infected": count_infected,
-            "Susceptible": count_susceptible
+            "Susceptible": count_susceptible,
+            "Total": count_total,
         })
 
         self.running = True
 
     def step(self):
-        """Advance the simulation by one tick and stop when no S remain."""
+        """Advance one tick and stop once no susceptibles remain."""
         self.datacollector.collect(self)
         self.schedule.step()
-
-        # Termination: all agents are non-susceptible
-        if all(
-            isinstance(a, Person) and a.state != Health.SUSCEPTIBLE
-            for a in self.schedule.agents
-        ):
+        if all(isinstance(a, Person) and a.state != Health.SUSCEPTIBLE for a in self.schedule.agents):
             self.running = False
