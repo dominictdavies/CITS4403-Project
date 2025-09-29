@@ -1,5 +1,4 @@
-def print_hello_world():
-    print("Hello, World!")
+from utils.hello import print_hello_world
 
 
 if __name__ == "__main__":
