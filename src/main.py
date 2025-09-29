@@ -1,5 +1,8 @@
-from utils.hello import print_hello_world
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import mesa
 
 
 if __name__ == "__main__":
-    print_hello_world()
+    print("Hello, World!")
