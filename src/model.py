@@ -6,16 +6,6 @@ from .agents import Person, Health
 import random
 
 
-def count_infected(m):
-    return sum(1 for a in m.agents if isinstance(a, Person) and a.state == Health.INFECTED)
-
-def count_susceptible(m):
-    return sum(1 for a in m.agents if isinstance(a, Person) and a.state == Health.SUSCEPTIBLE)
-
-def count_total(m):
-    return sum(1 for _ in m.agents)
-
-
 class InfectionModel(Model):
     """
     Continuous-space infection spread model with separated radii:
@@ -69,12 +59,21 @@ class InfectionModel(Model):
 
         # data
         self.datacollector = DataCollector(model_reporters={
-            "Infected": count_infected,
-            "Susceptible": count_susceptible,
-            "Total": count_total,
+            "Infected": self.count_infected,
+            "Susceptible": self.count_susceptible,
+            "Total": self.count_total,
         })
 
         self.running = True
+
+    def count_infected(self):
+        return sum(1 for a in self.agents if isinstance(a, Person) and a.state == Health.INFECTED)
+
+    def count_susceptible(self):
+        return sum(1 for a in self.agents if isinstance(a, Person) and a.state == Health.SUSCEPTIBLE)
+
+    def count_total(self):
+        return sum(1 for _ in self.agents)
 
     def step(self):
         """Advance one tick and stop once no susceptibles remain."""
