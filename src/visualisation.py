@@ -5,12 +5,12 @@ CELL_SIZE = 20
 FPS = 5
 
 
-def draw_model(screen, model: InfectionModel):
+def draw_model(screen: pygame.Surface, model: InfectionModel):
     screen.fill((0, 0, 0))
 
     for agent in model.agents:
         # Each agent has a .pos attribute: (x, y) in model.space coordinates
-        x, y = agent.pos
+        x, y = agent.pos  # type: ignore
 
         # Convert to pixel coordinates
         px = int(x * CELL_SIZE)
@@ -24,7 +24,9 @@ def draw_model(screen, model: InfectionModel):
 def run_simulation(model: InfectionModel):
     pygame.init()
 
-    screen = pygame.display.set_mode((model.width * CELL_SIZE, model.height * CELL_SIZE))
+    screen = pygame.display.set_mode(
+        (model.width * CELL_SIZE, model.height * CELL_SIZE)
+    )
     clock = pygame.time.Clock()
 
     running = True
