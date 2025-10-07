@@ -2,12 +2,10 @@ import pygame
 from src.model import InfectionModel
 
 CELL_SIZE = 20
-GRID_WIDTH = 20
-GRID_HEIGHT = 20
-FPS = 10
+FPS = 5
 
 
-def draw_model(screen, model):
+def draw_model(screen, model: InfectionModel):
     screen.fill((0, 0, 0))
 
     for agent in model.agents:
@@ -23,21 +21,11 @@ def draw_model(screen, model):
         pygame.draw.circle(screen, color, (px, py), 5)
 
 
-def run_simulation():
+def run_simulation(model: InfectionModel):
     pygame.init()
-    screen = pygame.display.set_mode((GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE))
+
+    screen = pygame.display.set_mode((model.width * CELL_SIZE, model.height * CELL_SIZE))
     clock = pygame.time.Clock()
-    model = InfectionModel(
-        N=80,
-        width=50,
-        height=50,
-        speed=3.0,
-        collision_radius=1.0,  # bounce only (small)
-        contact_radius=6.0,  # infection proximity (large)
-        infection_prob=0.5,
-        initial_infected=2,
-        seed=42,
-    )
 
     running = True
     while running:
@@ -51,7 +39,3 @@ def run_simulation():
         clock.tick(FPS)
 
     pygame.quit()
-
-
-if __name__ == "__main__":
-    run_simulation()
