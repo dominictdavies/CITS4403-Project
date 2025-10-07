@@ -32,28 +32,23 @@ class InfectionModel(Model):
                  collision_radius=1.0,
                  contact_radius=3.0,
                  infection_prob=0.35,
-                 initial_infected=3,
-                 vaccinated_rate=0.0,
                  vaccinated_effect=0.5,
-                 hygiene_factor=1.0,
-                 distancing_factor=1.0,
+                 vaccinated_rate=0.0,
+                 initial_infected=3,
                  seed=None):
         super().__init__()
         if seed is not None:
             random.seed(seed)
 
-        # domain & agent step
-        self.width, self.height = width, height
-        self.space = ContinuousSpace(width, height, torus=False)
-
         # parameters
         self.collision_radius = float(collision_radius)
-        base_contact = float(contact_radius)
-        self.contact_radius = base_contact * max(0.0, float(distancing_factor))
+        self.contact_radius = float(contact_radius)
+        self.infection_prob = max(0.0, min(1.0, float(infection_prob)))
+        self.vaccinated_effect = max(0.0, min(1.0, float(vaccinated_effect)))
 
-        self.base_infection_prob = infection_prob
-        self.infection_prob = max(0.0, min(1.0, infection_prob * max(0.0, float(hygiene_factor))))
-        self.vaccinated_effect = max(0.0, min(1.0, vaccinated_effect))
+        # domain
+        self.width, self.height = width, height
+        self.space = ContinuousSpace(width, height, torus=False)
 
         # agents
         for i in range(N):
