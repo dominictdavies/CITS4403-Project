@@ -1,12 +1,6 @@
 from mesa import Model
 from mesa.space import ContinuousSpace
 
-# Scheduler import compatible with Mesa 1.x and 3.x
-try:
-    from mesa.time import RandomActivation          # Mesa 1.x
-except Exception:
-    from mesa.timekeeping import RandomActivation   # Mesa 3.x
-
 from mesa.datacollection import DataCollector
 from .agents import Person, Health
 import random
@@ -51,7 +45,7 @@ class InfectionModel(Model):
         # domain & scheduler
         self.width, self.height = width, height
         self.space = ContinuousSpace(width, height, torus=False)
-        self.schedule = RandomActivation(self)
+        self.agents.shuffle_do("step")
 
         # parameters
         self.collision_radius = float(collision_radius)
@@ -73,7 +67,6 @@ class InfectionModel(Model):
                 state = Health.VACCINATED
 
             a = Person(ids[i], self, speed=speed, state=state)
-            self.schedule.add(a)
             self.space.place_agent(a, (random.uniform(0, width), random.uniform(0, height)))
 
         # data
@@ -88,6 +81,6 @@ class InfectionModel(Model):
     def step(self):
         """Advance one tick and stop once no susceptibles remain."""
         self.datacollector.collect(self)
-        self.schedule.step()
-        if all(isinstance(a, Person) and a.state != Health.SUSCEPTIBLE for a in self.schedule.agents):
+        self.agents.do("step")
+        if all(isinstance(a, Person) and a.state != Health.SUSCEPTIBLE for a in self.agents):
             self.running = False
