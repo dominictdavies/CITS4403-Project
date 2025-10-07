@@ -35,7 +35,6 @@ class InfectionModel(Model):
         # domain & agent step
         self.width, self.height = width, height
         self.space = ContinuousSpace(width, height, torus=False)
-        self.agents.shuffle_do("step")
 
         # parameters
         self.collision_radius = float(collision_radius)
@@ -78,6 +77,6 @@ class InfectionModel(Model):
     def step(self):
         """Advance one tick and stop once no susceptibles remain."""
         self.datacollector.collect(self)
-        self.agents.do("step")
+        self.agents.shuffle_do("step")
         if all(isinstance(a, Person) and a.state != Health.SUSCEPTIBLE for a in self.agents):
             self.running = False
