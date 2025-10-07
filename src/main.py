@@ -10,11 +10,11 @@ if __name__ == "__main__":
         width=1280,
         height=1280,
         speed=1.0,
-        collision_radius=0.1,  # TODO: Fix collision_radius
-        contact_radius=10.0,
+        collision_radius=10.0,
+        contact_radius=20.0,
         infection_prob=0.5,
         initial_infected=1,
         seed=42,
     )
 
-    run_simulation(model)
+    run_simulation(model, fps=120)

@@ -33,10 +33,10 @@ class Person(Agent):
         self.state = state
 
     # --- motion & collisions -------------------------------------------------
-    def _reflect_on_people(self, pos):
+    def _reflect_on_people(self):
         """Collision proxy using collision_radius; flips velocity if any neighbor is within radius."""
         neighbors = self.model.space.get_neighbors(
-            pos, self.model.collision_radius, include_center=False
+            self.pos, self.model.collision_radius, include_center=False
         )
         if any(isinstance(o, Person) for o in neighbors):
             self.vx *= -1.0
@@ -62,8 +62,8 @@ class Person(Agent):
     # --- step ----------------------------------------------------------------
     def step(self):
         """One tick: move, reflect, update infection state."""
+        self._reflect_on_people()
         x, y = self.pos
         nx, ny = x + self.vx * self.speed, y + self.vy * self.speed
-        self._reflect_on_people((nx, ny))
         self.model.space.move_agent(self, (nx, ny))
         self._maybe_infect((nx, ny))
