@@ -1,3 +1,5 @@
+"""Entry point for running the InfectionModel simulation."""
+
 from src.model import InfectionModel
 from src.visualisation import run_simulation
 
