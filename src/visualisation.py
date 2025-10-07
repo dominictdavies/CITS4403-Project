@@ -9,11 +9,18 @@ FPS = 10
 
 def draw_model(screen, model):
     screen.fill((0, 0, 0))
-    for (x, y), cell in model.grid.coord_iter():
-        agents = cell[0]
-        color = (0, 255, 0) if agents else (30, 30, 30)
-        rect = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
-        pygame.draw.rect(screen, color, rect)
+
+    for agent in model.agents:
+        # Each agent has a .pos attribute: (x, y) in model.space coordinates
+        x, y = agent.pos
+
+        # Convert to pixel coordinates
+        px = int(x * CELL_SIZE)
+        py = int(y * CELL_SIZE)
+
+        # You can color agents by type or state if desired
+        color = (0, 255, 0)  # green as a placeholder
+        pygame.draw.circle(screen, color, (px, py), 5)
 
 
 def run_simulation():
