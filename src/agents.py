@@ -21,9 +21,9 @@ class Person(Agent):
     - Infection attempt on proximity to infected neighbors.
     """
 
-    def __init__(self, unique_id, model, speed=1.2, direction=None,
+    def __init__(self, model, speed=1.2, direction=None,
                  state=Health.SUSCEPTIBLE):
-        super().__init__(unique_id, model)
+        super().__init__(model)
         self.speed = speed
         if direction is None:
             ang = random.uniform(0.0, 2.0 * math.pi)

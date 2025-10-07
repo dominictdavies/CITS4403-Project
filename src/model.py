@@ -7,13 +7,13 @@ import random
 
 
 def count_infected(m):
-    return sum(1 for a in m.schedule.agents if isinstance(a, Person) and a.state == Health.INFECTED)
+    return sum(1 for a in m.agents if isinstance(a, Person) and a.state == Health.INFECTED)
 
 def count_susceptible(m):
-    return sum(1 for a in m.schedule.agents if isinstance(a, Person) and a.state == Health.SUSCEPTIBLE)
+    return sum(1 for a in m.agents if isinstance(a, Person) and a.state == Health.SUSCEPTIBLE)
 
 def count_total(m):
-    return sum(1 for _ in m.schedule.agents)
+    return sum(1 for _ in m.agents)
 
 
 class InfectionModel(Model):
@@ -42,7 +42,7 @@ class InfectionModel(Model):
         if seed is not None:
             random.seed(seed)
 
-        # domain & scheduler
+        # domain & agent step
         self.width, self.height = width, height
         self.space = ContinuousSpace(width, height, torus=False)
         self.agents.shuffle_do("step")
@@ -57,8 +57,6 @@ class InfectionModel(Model):
         self.vaccinated_effect = max(0.0, min(1.0, vaccinated_effect))
 
         # agents
-        ids = list(range(N))
-        random.shuffle(ids)
         for i in range(N):
             state = Health.SUSCEPTIBLE
             if i < initial_infected:
@@ -66,7 +64,7 @@ class InfectionModel(Model):
             elif random.random() < max(0.0, min(1.0, vaccinated_rate)):
                 state = Health.VACCINATED
 
-            a = Person(ids[i], self, speed=speed, state=state)
+            a = Person(self, speed=speed, state=state)
             self.space.place_agent(a, (random.uniform(0, width), random.uniform(0, height)))
 
         # data
