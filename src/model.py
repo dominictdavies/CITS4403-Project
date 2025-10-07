@@ -48,7 +48,7 @@ class InfectionModel(Model):
 
         # domain
         self.width, self.height = width, height
-        self.space = ContinuousSpace(width, height, torus=False)
+        self.space = ContinuousSpace(width, height, torus=True)
 
         # agents
         for i in range(N):

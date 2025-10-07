@@ -33,17 +33,6 @@ class Person(Agent):
         self.state = state
 
     # --- motion & collisions -------------------------------------------------
-    def _reflect_on_edge(self, x, y):
-        """Boundary reflection with strict in-bounds clamping."""
-        xmin, ymin, xmax, ymax = 0.0, 0.0, self.model.width, self.model.height
-        if x < xmin or x > xmax:
-            self.vx *= -1.0
-            x = min(max(x, xmin + 1e-6), xmax - 1e-6)
-        if y < ymin or y > ymax:
-            self.vy *= -1.0
-            y = min(max(y, ymin + 1e-6), ymax - 1e-6)
-        return x, y
-
     def _reflect_on_people(self, pos):
         """Collision proxy using collision_radius; flips velocity if any neighbor is within radius."""
         neighbors = self.model.space.get_neighbors(
@@ -75,7 +64,6 @@ class Person(Agent):
         """One tick: move, reflect, update infection state."""
         x, y = self.pos
         nx, ny = x + self.vx * self.speed, y + self.vy * self.speed
-        nx, ny = self._reflect_on_edge(nx, ny)
         self._reflect_on_people((nx, ny))
         self.model.space.move_agent(self, (nx, ny))
         self._maybe_infect((nx, ny))
