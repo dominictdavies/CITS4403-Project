@@ -16,4 +16,4 @@
 
 1. Complete the setup instructions above.
 2. Install git hooks for pre-commit: `pre-commit install`
-    - This will format and sort imports of `.py` files with [black](https://github.com/psf/black) and [isort](https://github.com/PyCQA/isort) respectively.
+    - Upon commit, staged `.py` files will be automatically formatted and have their imports sorted with [black](https://github.com/psf/black) and [isort](https://github.com/PyCQA/isort) respectively.
