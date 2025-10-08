@@ -1,35 +1,20 @@
-import numpy as np
-import pandas as pd
-import seaborn as sns
-import mesa
+"""Entry point for running the InfectionModel simulation."""
 
-
-class InfectionAgent(mesa.Agent):
-    """An agent that may spread the infection."""
-
-    def __init__(self, model):
-        super().__init__(model)
-        self.position = np.array([0.0, 0.0])
-        self.velocity = np.array([0.1, 0.1])
-
-    def move(self):
-        self.position += self.velocity
-        print(f"{self.unique_id!s}: Arrived at {self.position}")
-
-
-class InfectionModel(mesa.Model):
-    """A model with some number of infection agents."""
-
-    def __init__(self, n, seed=None):
-        super().__init__(seed=seed)
-        self.num_agents = n
-        InfectionAgent.create_agents(model=self, n=n)
-
-    def step(self):
-        """Advance the model by one step."""
-        self.agents.shuffle_do("move")
+from src.model import InfectionModel
+from src.visualisation import run_simulation
 
 
 if __name__ == "__main__":
-    infection_model = InfectionModel(10)
-    infection_model.step()
+    model = InfectionModel(
+        N=128,
+        width=1280,
+        height=1280,
+        speed=1.0,
+        collision_radius=10.0,
+        contact_radius=20.0,
+        infection_prob=0.5,
+        initial_infected=1,
+        seed=42,
+    )
+
+    run_simulation(model, fps=120)

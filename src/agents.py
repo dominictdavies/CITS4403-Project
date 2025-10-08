@@ -21,9 +21,9 @@ class Person(Agent):
     - Infection attempt on proximity to infected neighbors.
     """
 
-    def __init__(self, unique_id, model, speed=1.2, direction=None,
+    def __init__(self, model, speed=1.2, direction=None,
                  state=Health.SUSCEPTIBLE):
-        super().__init__(unique_id, model)
+        super().__init__(model)
         self.speed = speed
         if direction is None:
             ang = random.uniform(0.0, 2.0 * math.pi)
@@ -33,21 +33,10 @@ class Person(Agent):
         self.state = state
 
     # --- motion & collisions -------------------------------------------------
-    def _reflect_on_edge(self, x, y):
-        """Boundary reflection with strict in-bounds clamping."""
-        xmin, ymin, xmax, ymax = 0.0, 0.0, self.model.width, self.model.height
-        if x < xmin or x > xmax:
-            self.vx *= -1.0
-            x = min(max(x, xmin + 1e-6), xmax - 1e-6)
-        if y < ymin or y > ymax:
-            self.vy *= -1.0
-            y = min(max(y, ymin + 1e-6), ymax - 1e-6)
-        return x, y
-
-    def _reflect_on_people(self, pos):
+    def _reflect_on_people(self):
         """Collision proxy using collision_radius; flips velocity if any neighbor is within radius."""
         neighbors = self.model.space.get_neighbors(
-            pos, self.model.collision_radius, include_center=False
+            self.pos, self.model.collision_radius, include_center=False
         )
         if any(isinstance(o, Person) for o in neighbors):
             self.vx *= -1.0
@@ -73,9 +62,8 @@ class Person(Agent):
     # --- step ----------------------------------------------------------------
     def step(self):
         """One tick: move, reflect, update infection state."""
+        self._reflect_on_people()
         x, y = self.pos
         nx, ny = x + self.vx * self.speed, y + self.vy * self.speed
-        nx, ny = self._reflect_on_edge(nx, ny)
-        self._reflect_on_people((nx, ny))
         self.model.space.move_agent(self, (nx, ny))
         self._maybe_infect((nx, ny))
