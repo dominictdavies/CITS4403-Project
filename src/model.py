@@ -43,6 +43,7 @@ class InfectionModel(Model):
         contact_radius=20.0,
         infection_prob=0.5,
         recover_prob_per_frame=1e-3,
+        recovered_effect=1.0,
         vaccinated_effect=1.0,
         vaccinated_rate=0.2,
         initial_infected=1,
@@ -57,6 +58,7 @@ class InfectionModel(Model):
         self.contact_radius = float(contact_radius)
         self.infection_prob = max(0.0, min(1.0, float(infection_prob)))
         self.recover_prob_per_frame = max(0.0, min(1.0, float(recover_prob_per_frame)))
+        self.recovered_effect = max(0.0, min(1.0, float(recovered_effect)))
         self.vaccinated_effect = max(0.0, min(1.0, float(vaccinated_effect)))
 
         # domain

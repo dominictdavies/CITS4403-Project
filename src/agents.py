@@ -53,8 +53,12 @@ class Person(Agent):
         for other in neighbors:
             if isinstance(other, Person) and other.state == Health.INFECTED:
                 p = self.model.infection_prob
-                if self.state == Health.VACCINATED and self.model.vaccinated_effect:
+
+                if self.state == Health.RECOVERED and self.model.recovered_effect:
+                    p *= 1.0 - self.model.recovered_effect
+                elif self.state == Health.VACCINATED and self.model.vaccinated_effect:
                     p *= 1.0 - self.model.vaccinated_effect
+
                 if random.random() < p:
                     self.state = Health.INFECTED
                     break
