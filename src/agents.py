@@ -11,7 +11,7 @@ class Health(Enum):
     SUSCEPTIBLE = auto()
     INFECTED = auto()
     RECOVERED = auto()  # reserved
-    VACCINATED = auto()  # reserved
+    VACCINATED = auto()
 
 
 class Person(Agent):
@@ -46,8 +46,9 @@ class Person(Agent):
     # --- infection -----------------------------------------------------------
     def _maybe_infect(self, pos):
         """Infection attempt for susceptible agents using contact_radius."""
-        if self.state != Health.SUSCEPTIBLE:
+        if self.state == Health.INFECTED:
             return
+
         neighbors = self.model.space.get_neighbors(
             pos, self.model.contact_radius, include_center=False
         )

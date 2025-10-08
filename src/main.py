@@ -12,6 +12,8 @@ if __name__ == "__main__":
         collision_radius=10.0,
         contact_radius=20.0,
         infection_prob=0.5,
+        vaccinated_effect=1.0,
+        vaccinated_rate=0.2,
         initial_infected=1,
         seed=42,
     )
