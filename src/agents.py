@@ -1,14 +1,16 @@
-from enum import Enum, auto
 import math
 import random
+from enum import Enum, auto
+
 from mesa import Agent
 
 
 class Health(Enum):
     """Finite states of an agent."""
+
     SUSCEPTIBLE = auto()
     INFECTED = auto()
-    RECOVERED = auto()   # reserved
+    RECOVERED = auto()  # reserved
     VACCINATED = auto()  # reserved
 
 
@@ -21,8 +23,7 @@ class Person(Agent):
     - Infection attempt on proximity to infected neighbors.
     """
 
-    def __init__(self, model, speed=1.2, direction=None,
-                 state=Health.SUSCEPTIBLE):
+    def __init__(self, model, speed=1.2, direction=None, state=Health.SUSCEPTIBLE):
         super().__init__(model)
         self.speed = speed
         if direction is None:
@@ -54,7 +55,7 @@ class Person(Agent):
             if isinstance(other, Person) and other.state == Health.INFECTED:
                 p = self.model.infection_prob
                 if self.state == Health.VACCINATED and self.model.vaccinated_effect:
-                    p *= (1.0 - self.model.vaccinated_effect)
+                    p *= 1.0 - self.model.vaccinated_effect
                 if random.random() < p:
                     self.state = Health.INFECTED
                     break

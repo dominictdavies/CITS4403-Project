@@ -3,8 +3,9 @@
 # pylint: disable=no-member
 
 import pygame
+
+from src.agents import Health, Person
 from src.model import InfectionModel
-from src.agents import Person, Health
 
 
 def draw_model(screen: pygame.Surface, model: InfectionModel, scale: int) -> None:
