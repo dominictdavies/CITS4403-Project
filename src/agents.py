@@ -10,7 +10,7 @@ class Health(Enum):
 
     SUSCEPTIBLE = auto()
     INFECTED = auto()
-    RECOVERED = auto()  # reserved
+    RECOVERED = auto()
     VACCINATED = auto()
 
 
@@ -33,7 +33,6 @@ class Person(Agent):
             self.vx, self.vy = direction
         self.state = state
 
-    # --- motion & collisions -------------------------------------------------
     def _reflect_on_people(self):
         """Collision proxy using collision_radius; flips velocity if any neighbor is within radius."""
         neighbors = self.model.space.get_neighbors(
@@ -43,7 +42,6 @@ class Person(Agent):
             self.vx *= -1.0
             self.vy *= -1.0
 
-    # --- infection -----------------------------------------------------------
     def _maybe_infect(self, pos):
         """Infection attempt for susceptible agents using contact_radius."""
         if self.state == Health.INFECTED:
@@ -61,7 +59,14 @@ class Person(Agent):
                     self.state = Health.INFECTED
                     break
 
-    # --- step ----------------------------------------------------------------
+    def _maybe_recover(self):
+        """Recover attempt for infected agents"""
+        if (
+            self.state == Health.INFECTED
+            and random.random() < self.model.recover_prob_per_frame
+        ):
+            self.state = Health.RECOVERED
+
     def step(self):
         """One tick: move, reflect, update infection state."""
         self._reflect_on_people()
@@ -69,3 +74,4 @@ class Person(Agent):
         nx, ny = x + self.vx * self.speed, y + self.vy * self.speed
         self.model.space.move_agent(self, (nx, ny))
         self._maybe_infect((nx, ny))
+        self._maybe_recover()
