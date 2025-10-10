@@ -1,8 +1,12 @@
 import math
 import random
 from enum import Enum, auto
+from typing import TYPE_CHECKING, cast
 
 from mesa import Agent
+
+if TYPE_CHECKING:
+    from model import InfectionModel
 
 
 class Health(Enum):
@@ -33,10 +37,14 @@ class Person(Agent):
             self.vx, self.vy = direction
         self.state = state
 
+    @property
+    def infection_model(self) -> "InfectionModel":
+        return cast("InfectionModel", self.model)
+
     def _reflect_on_people(self):
         """Collision proxy using collision_radius; flips velocity if any neighbor is within radius."""
-        neighbors = self.model.space.get_neighbors(
-            self.pos, self.model.collision_radius, include_center=False
+        neighbors = self.infection_model.space.get_neighbors(
+            self.pos, self.infection_model.collision_radius, include_center=False
         )
         if any(isinstance(o, Person) for o in neighbors):
             self.vx *= -1.0
@@ -47,17 +55,23 @@ class Person(Agent):
         if self.state == Health.INFECTED:
             return
 
-        neighbors = self.model.space.get_neighbors(
-            pos, self.model.contact_radius, include_center=False
+        neighbors = self.infection_model.space.get_neighbors(
+            pos, self.infection_model.contact_radius, include_center=False
         )
         for other in neighbors:
             if isinstance(other, Person) and other.state == Health.INFECTED:
-                p = self.model.infection_prob
+                p = self.infection_model.infection_prob
 
-                if self.state == Health.RECOVERED and self.model.recovered_effect:
-                    p *= 1.0 - self.model.recovered_effect
-                elif self.state == Health.VACCINATED and self.model.vaccinated_effect:
-                    p *= 1.0 - self.model.vaccinated_effect
+                if (
+                    self.state == Health.RECOVERED
+                    and self.infection_model.recovered_effect
+                ):
+                    p *= 1.0 - self.infection_model.recovered_effect
+                elif (
+                    self.state == Health.VACCINATED
+                    and self.infection_model.vaccinated_effect
+                ):
+                    p *= 1.0 - self.infection_model.vaccinated_effect
 
                 if random.random() < p:
                     self.state = Health.INFECTED
@@ -65,9 +79,10 @@ class Person(Agent):
 
     def _maybe_recover(self):
         """Recover attempt for infected agents"""
+
         if (
             self.state == Health.INFECTED
-            and random.random() < self.model.recover_prob_per_frame
+            and random.random() < self.infection_model.recover_prob_per_frame
         ):
             self.state = Health.RECOVERED
 
@@ -76,6 +91,6 @@ class Person(Agent):
         self._reflect_on_people()
         x, y = self.pos
         nx, ny = x + self.vx * self.speed, y + self.vy * self.speed
-        self.model.space.move_agent(self, (nx, ny))
+        self.infection_model.space.move_agent(self, (nx, ny))
         self._maybe_infect((nx, ny))
         self._maybe_recover()
