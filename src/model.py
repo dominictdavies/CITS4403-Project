@@ -49,7 +49,7 @@ class InfectionModel(Model):
         initial_infected=1,
         seed=42,
     ):
-        super().__init__()
+        super().__init__(seed=seed)
         if seed is not None:
             random.seed(seed)
 
