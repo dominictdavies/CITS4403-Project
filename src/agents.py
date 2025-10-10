@@ -4,6 +4,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING, cast
 
 from mesa import Agent
+from mesa.space import FloatCoordinate
 
 if TYPE_CHECKING:
     from model import InfectionModel
@@ -41,10 +42,14 @@ class Person(Agent):
     def infection_model(self) -> "InfectionModel":
         return cast("InfectionModel", self.model)
 
+    @property
+    def float_pos(self) -> "FloatCoordinate":
+        return cast("FloatCoordinate", self.pos)
+
     def _reflect_on_people(self):
         """Collision proxy using collision_radius; flips velocity if any neighbor is within radius."""
         neighbors = self.infection_model.space.get_neighbors(
-            self.pos, self.infection_model.collision_radius, include_center=False
+            self.float_pos, self.infection_model.collision_radius, include_center=False
         )
         if any(isinstance(o, Person) for o in neighbors):
             self.vx *= -1.0
@@ -89,7 +94,7 @@ class Person(Agent):
     def step(self):
         """One tick: move, reflect, update infection state."""
         self._reflect_on_people()
-        x, y = self.pos
+        x, y = tuple(self.float_pos)
         nx, ny = x + self.vx * self.speed, y + self.vy * self.speed
         self.infection_model.space.move_agent(self, (nx, ny))
         self._maybe_infect((nx, ny))
