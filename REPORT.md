@@ -105,54 +105,42 @@ This data is stored as CSV files and plotted to show how infection, susceptibili
 | 60% Vaccinated | 60% vaccinated   | Just before full herd immunity effect       |
 | 65% Vaccinated | 65% vaccinated   | Just after full herd immunity effect        |
 
-> ![all_scenarios_infected](/Users/leonce/Desktop/CITS4403-Project/outputs/all_scenarios_infected.png)
-> ![all_scenarios_susceptible](/Users/leonce/Desktop/CITS4403-Project/outputs/all_scenarios_susceptible.png)
+> ![60_vaccinated](/Users/leonce/Desktop/CITS4403-Project/outputs/60_vaccinated.png)
+> ![65_vaccinated](/Users/leonce/Desktop/CITS4403-Project/outputs/65_vaccinated.png)
 
 ------
 
 ## **4. Results**
 
-The experiments reveal consistent and interpretable trends across all scenarios. Each intervention affects either the *speed* or the *extent* of infection spread, and their combined effects demonstrate how behavioural factors interact to shape epidemic outcomes.
+The experiments reveal the trend of *herd immunity* across scenarios with increasing vaccination rates. Each increase in vaccination rate affects the *speed* and *extent* of infection spread, and the arise of herd immunity demonstrates how stopping an epidemic at its critical infection point may shape its overall outcome greatly.
 
-1. In the **baseline** scenario, infections grow rapidly after a short delay. The number of infected agents increases almost exponentially before stabilising as all susceptible individuals are infected. This logistic-shaped curve confirms the expected behaviour of uncontrolled transmission in a closed system.
+1. In the **baseline** scenario, infections grow rapidly after a short delay. The number of infected agents increases steadily before reaching a maximum and falling again as most susceptible individuals recover. This quadratic curve confirms the expected behaviour of transmission reaching a maximum in a closed system before dropping as people become immune.
 
-2. Introducing **social distancing** slows the infection process. Reduced contact radius lowers the rate of encounters, flattening the infection curve and extending the time to reach saturation. Though the final infection count remains high, the slower progression effectively illustrates the “flatten the curve” phenomenon.
+    > ![0_vaccinated](/Users/leonce/Desktop/CITS4403-Project/outputs/0_vaccinated.png)
 
-3. Enhancing **hygiene** reduces transmission probability while maintaining normal mobility. The resulting curve remains lower throughout, indicating fewer successful transmissions. Hygiene primarily diminishes infection *intensity* rather than infection *speed*.
+2. Introducing a **vaccination rate** of *20%* slows the infection process. Reduced susceptible people lowers the rate of infectious encounters, slighlty squashing the infection curve and extending the time to reach saturation. Though the final infection count remains high, the slower progression illustrates the “flatten the curve” phenomenon.
 
-4. The **50% vaccination** scenario exhibits a significant decline in both infection rate and total infections. Approximately half of the population remains uninfected, representing a simplified manifestation of herd immunity that limits outbreak growth.
+    > ![20_vaccinated](/Users/leonce/Desktop/CITS4403-Project/outputs/20_vaccinated.png)
 
-5. When both interventions are combined, the epidemic is smallest and most stable. The **combined scenario** produces the flattest curve, with minimal growth and early plateau. This confirms that layered strategies outperform single interventions in controlling spread.
+3. Increasing the **vaccination rate** to *60%* reduces transmission probability much more than *20%*. The resulting curve remains even lower throughout, indicating fewer successful transmissions. The general trend of the infection line unexpectedly shows two maximums. This could be caused by the infection beginning in a small area of infection, then finally making it to the rest of the space before running out of new people to spread to. Herd immunity is not quite being reached in this scenario with the number of infected people still soaring.
 
-6. To validate correctness, a **real-time visualisation** built with *Pygame* was used. In this interface, agents appear as coloured dots—red for infected, yellow for susceptible, and blue for vaccinated. Observations show infection only occurs upon close contact and that boundary reflections behave properly.
+    > ![60_vaccinated](/Users/leonce/Desktop/CITS4403-Project/outputs/60_vaccinated.png)
 
-> ![image-20251009004922833](/Users/leonce/Library/Application Support/typora-user-images/image-20251009004922833.png)
+4. At a **vaccination rate** of *65%*, the scenario exhibits a significant decline in both infection rate and total infections. The trend of the infection line makes it nowhere near the susceptible line for the first time. Only *22%* of the susceptible population became infected, representing a simplified manifestation of *herd immunity* that greatly limits outbreak growth.
 
-The visual behaviour aligns with data results: dense infection clusters emerge in the baseline, while spread remains contained under combined measures. This consistency between visual and statistical outcomes reinforces the accuracy of model logic.
+    > ![65_vaccinated](/Users/leonce/Desktop/CITS4403-Project/outputs/65_vaccinated.png)
 
-------
-
-### **4.7 Summary of Trends**
-
-| Scenario       | Infection Peak | Speed of Spread | Final Susceptible | Key Observation       |
-| -------------- | -------------- | --------------- | ----------------- | --------------------- |
-| Baseline       | Very high      | Fast            | ~0                | Complete outbreak     |
-| Distancing     | Medium-high    | Slower          | ~20               | Flattened curve       |
-| Hygiene        | Medium         | Moderate        | ~30               | Reduced transmission  |
-| 50% Vaccinated | Low            | Slower          | ~45               | Partial herd immunity |
-| Combined       | Very low       | Slowest         | ~60               | Strongest suppression |
-
-------
+The visual behaviour aligns with data results: dense infection clusters emerge in the baseline, while spread remains contained under higher vaccination rates. This consistency between visual and statistical outcomes reinforces the accuracy of our model's logic.
 
 ## **5. Discussion**
 
 ### **5.1 Model Evaluation**
 
-The model demonstrates coherent internal logic and consistent sensitivity across its parameters. Variations in geometry or infection probability produce predictable and interpretable effects: lower contact radius or reduced probability flatten infection curves, while their combination yields the strongest suppression.
+The model demonstrates coherent internal logic and consistent sensitivity across its parameters. Variations in geometry or infection probability produce predictable and interpretable effects: higher vaccination rates flatten infection curves, leading to herd immunity that yields the strongest suppression.
 
-The design is compact yet modular. With fewer than 200 lines of code, the implementation provides a transparent mapping between parameters and emergent outcomes. The use of ContinuousSpace avoids lattice artefacts, and the RandomActivation scheduler ensures fairness in agent updates.
+The design is compact yet modular. The implementation provides a transparent mapping between vaccination rate and emergent outcomes. The use of ContinuousSpace avoids lattice artefacts, and the random step function ensures fairness in agent updates.
 
-The reproducibility of results, achieved through fixed seeds and data exports, allows transparent verification and replication by others.
+The reproducibility of results, achieved through fixed seeds, allows transparent verification and replication by others.
 
 ------
 
@@ -161,10 +149,10 @@ The reproducibility of results, achieved through fixed seeds and data exports, a
 Three groups of parameters govern system dynamics:
 
 1. **Geometric parameters** – including `collision_radius`, `distancing_factor`, and population density (`N / area`), determine encounter frequency.
-2. **Probabilistic parameters** – `infection_prob`, `hygiene_factor`, and `vaccinated_effect`, control infection likelihood per contact.
-3. **Initial conditions** – such as `initial_infected` and `vaccinated_rate`, influence early acceleration and final outbreak size.
+2. **Probabilistic parameters** – `infection_prob`, `recovery_prob`, and `vaccinated_effect`, control infection likelihood per contact.
+3. **Initial conditions** – `initial_infected` and `vaccinated_rate`, influence early acceleration and final outbreak size.
 
-Simulation results show consistent qualitative behaviour: lowering either contact frequency or infection probability suppresses infection curves, and combining both maximises the mitigation effect.
+Simulation results show consistent qualitative behaviour: increasing vaccination rates suppresses infection curves, and herd immunity maximises this mitigation effect.
 
 ------
 
@@ -172,10 +160,9 @@ Simulation results show consistent qualitative behaviour: lowering either contac
 
 Despite its simplicity, the model has several limitations that constrain realism:
 
-1. **Single-radius approximation:** using one radius for both collision and infection simplifies computation but ignores variation in proximity and exposure time.
-2. **Absence of recovery:** infected agents remain permanently infected, inflating final counts relative to realistic epidemics.
-3. **Homogeneous agents:** identical movement speeds and behaviours omit variability in compliance or susceptibility.
-4. **Discrete-time simulation:** fixed time steps standardise exposure duration, limiting fine-grained temporal analysis.
+1. **Homogeneous agents:** identical movement speeds and behaviours omit variability in compliance or susceptibility.
+2. **Discrete-time simulation:** fixed time steps standardise exposure duration, limiting fine-grained temporal analysis.
+3. **Slow performance with intensive loads:** increasing the number of agents into the thousands immediately brings about slow-downs.
 
 These limitations are deliberate trade-offs to prioritise transparency and computational efficiency over biological detail.
 
@@ -185,11 +172,9 @@ These limitations are deliberate trade-offs to prioritise transparency and compu
 
 The modular architecture allows straightforward extensions:
 
-1. Introduce recovery and immunity states (`RECOVERED`, `REMOVED`).
-2. Assign heterogeneous speeds or compliance levels.
-3. Separate `bounce_radius` from `contact_radius` for finer physical realism.
-4. Add social clustering or barriers to represent environmental structure.
-5. Record contact networks for statistical or epidemiological analysis.
+1. Assign heterogeneous speeds or compliance levels.
+2. Add social clustering or barriers to represent environmental structure.
+3. Record contact networks for statistical or epidemiological analysis.
 
 Such additions could increase realism while preserving interpretability and educational value.
 
@@ -200,9 +185,9 @@ Such additions could increase realism while preserving interpretability and educ
 
 ## **6. Conclusion**
 
-A continuous-space agent-based model was developed to simulate infection spread under different behavioural interventions. The results demonstrate that social distancing primarily slows the rate of transmission, hygiene reduces overall infections, vaccination limits both scale and duration, and their combination produces the strongest suppression effect.
+A continuous-space agent-based model was developed to simulate infection spread under different rates of vaccination. The results demonstrate that *herd immunity* slows the rate of transmission the most, which high vaccination rates are able to bring about to produce a strong suppression effect.
 
-The inclusion of visualisation and reproducible experiments highlights how simple, individual-level rules can produce complex, emergent epidemic dynamics. The project’s modular structure and clear outputs make it a strong foundation for future work on recovery processes, networked populations, and adaptive behaviours.
+The inclusion of visualisation and reproducible experiments highlights how simple, individual-level rules can produce complex, emergent epidemic dynamics. The project’s modular structure and clear outputs make it a strong foundation for future work on networked populations, and adaptive behaviours.
 
 ------
 
@@ -234,8 +219,7 @@ CITS4403-Project/
   │   └─ overview.ipynb
   ├─ outputs/
   │   ├─ all_scenarios_infected.png
-  │   ├─ all_scenarios_susceptible.png
-  │   └─ scenario CSVs
+  │   └─ all_scenarios_susceptible.png
   ├─ utils/
   │   ├─ config.py
   │   └─ __init__.py
@@ -258,13 +242,3 @@ To run just the infection model:
 ```bash
 python -m src.main
 ```
-
-------
-
-## **Appendix B. Figure Captions**
-
-**Figure 1:** Infected vs Time (five intervention scenarios)
-
-**Figure 2:** Susceptible vs Time (comparison of all scenarios)
-
-**Figure 3:** Pygame visualisation snapshot showing movement and infection spread
