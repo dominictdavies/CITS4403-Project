@@ -4,6 +4,8 @@ from mesa import Model
 from mesa.datacollection import DataCollector
 from mesa.space import ContinuousSpace
 
+from utils.config import SimulationConfig
+
 from .agents import Health, Person
 
 
@@ -33,49 +35,31 @@ class InfectionModel(Model):
     Distancing scales contact_radius; hygiene scales frame_infection_prob.
     """
 
-    def __init__(
-        self,
-        num_people=128,
-        width=1280,
-        height=1280,
-        speed=3.0,
-        collision_radius=10.0,
-        contact_radius=20.0,
-        frame_infection_prob=0.5,
-        frame_recover_prob=5e-3,
-        recovered_effect=1.0,
-        vaccinated_effect=1.0,
-        vaccinated_rate=0.2,
-        initial_infected=1,
-        seed=42,
-    ):
-        super().__init__(seed=seed)
-        if seed is not None:
-            random.seed(seed)
-
-        # parameters
-        self.collision_radius = float(collision_radius)
-        self.contact_radius = float(contact_radius)
-        self.frame_infection_prob = max(0.0, min(1.0, float(frame_infection_prob)))
-        self.frame_recover_prob = max(0.0, min(1.0, float(frame_recover_prob)))
-        self.recovered_effect = max(0.0, min(1.0, float(recovered_effect)))
-        self.vaccinated_effect = max(0.0, min(1.0, float(vaccinated_effect)))
-
-        # domain
-        self.width, self.height = width, height
-        self.space = ContinuousSpace(width, height, torus=True)
+    def __init__(self, config: SimulationConfig):
+        super().__init__(seed=config.seed)
+        random.seed(config.seed)
+        self.width = config.world.width
+        self.height = config.world.height
+        self.space = ContinuousSpace(self.width, self.height, torus=True)
+        self.config = config
 
         # agents
-        for i in range(num_people):
+        for i in range(config.population.num_people):
             state = Health.SUSCEPTIBLE
-            if i < initial_infected:
+            if i < config.population.initial_infected:
                 state = Health.INFECTED
-            elif random.random() < max(0.0, min(1.0, vaccinated_rate)):
+            elif random.random() < max(
+                0.0, min(1.0, config.population.vaccinated_rate)
+            ):
                 state = Health.VACCINATED
 
-            a = Person(self, speed=speed, state=state)
+            a = Person(self, speed=config.world.speed, state=state)
             self.space.place_agent(
-                a, (random.uniform(0, width), random.uniform(0, height))
+                a,
+                (
+                    random.uniform(0, config.world.width),
+                    random.uniform(0, config.world.height),
+                ),
             )
 
         # data

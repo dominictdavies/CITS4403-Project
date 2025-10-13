@@ -30,6 +30,11 @@ class Person(Agent):
 
     def __init__(self, model, speed=3.0, direction=None, state=Health.SUSCEPTIBLE):
         super().__init__(model)
+
+        self.world_config = self.infection_model.config.world
+        self.disease_config = self.infection_model.config.disease
+        self.population_config = self.infection_model.config.population
+
         self.speed = speed
         if direction is None:
             ang = random.uniform(0.0, 2.0 * math.pi)
@@ -49,7 +54,7 @@ class Person(Agent):
     def _reflect_on_people(self):
         """Collision proxy using collision_radius; flips velocity if any neighbor is within radius."""
         neighbors = self.infection_model.space.get_neighbors(
-            self.float_pos, self.infection_model.collision_radius, include_center=False
+            self.float_pos, self.world_config.collision_radius, include_center=False
         )
         if any(isinstance(o, Person) for o in neighbors):
             self.vx *= -1.0
@@ -61,22 +66,22 @@ class Person(Agent):
             return
 
         neighbors = self.infection_model.space.get_neighbors(
-            pos, self.infection_model.contact_radius, include_center=False
+            pos, self.disease_config.contact_radius, include_center=False
         )
         for other in neighbors:
             if isinstance(other, Person) and other.state == Health.INFECTED:
-                p = self.infection_model.frame_infection_prob
+                p = self.disease_config.frame_infection_prob
 
                 if (
                     self.state == Health.RECOVERED
-                    and self.infection_model.recovered_effect
+                    and self.population_config.recovered_effect
                 ):
-                    p *= 1.0 - self.infection_model.recovered_effect
+                    p *= 1.0 - self.population_config.recovered_effect
                 elif (
                     self.state == Health.VACCINATED
-                    and self.infection_model.vaccinated_effect
+                    and self.population_config.vaccinated_effect
                 ):
-                    p *= 1.0 - self.infection_model.vaccinated_effect
+                    p *= 1.0 - self.population_config.vaccinated_effect
 
                 if random.random() < p:
                     self.state = Health.INFECTED
@@ -87,7 +92,7 @@ class Person(Agent):
 
         if (
             self.state == Health.INFECTED
-            and random.random() < self.infection_model.frame_recover_prob
+            and random.random() < self.disease_config.frame_recover_prob
         ):
             self.state = Health.RECOVERED
 
