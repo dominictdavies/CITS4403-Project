@@ -122,7 +122,7 @@ CITS4403-Project/
 
 * `outputs/all_scenarios_infected.png`
 * `outputs/all_scenarios_susceptible.png`
-* `outputs/herd_immunity_comparison.png` *(added in PR #12)*
+* `outputs/herd_immunity_comparison.png` 
 
 **CSV Results**
 
