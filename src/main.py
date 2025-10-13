@@ -5,4 +5,4 @@ from src.visualisation import run_simulation
 
 if __name__ == "__main__":
     model = InfectionModel()
-    run_simulation(model, fps=120)
+    run_simulation(model, fps=60)
