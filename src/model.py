@@ -1,84 +1,100 @@
+"""Infection model using Mesa agent-based modelling framework."""
+
 import random
 
 from mesa import Model
 from mesa.datacollection import DataCollector
 from mesa.space import ContinuousSpace
 
+from utils.config import SimulationConfig
+
 from .agents import Health, Person
 
 
-def count_infected(m):
+def count_susceptible(model: Model):
+    """Counts the number of agents that are currently susceptible"""
     return sum(
-        1 for a in m.agents if isinstance(a, Person) and a.state == Health.INFECTED
+        1
+        for a in model.agents
+        if isinstance(a, Person) and a.state == Health.SUSCEPTIBLE
     )
 
 
-def count_susceptible(m):
+def count_infected(model: Model):
+    """Counts the number of agents that are currently infected"""
     return sum(
-        1 for a in m.agents if isinstance(a, Person) and a.state == Health.SUSCEPTIBLE
+        1 for a in model.agents if isinstance(a, Person) and a.state == Health.INFECTED
     )
 
 
-def count_total(m):
-    return sum(1 for _ in m.agents)
+def count_recovered(model: Model):
+    """Counts the number of agents that are currently recovered"""
+    return sum(
+        1 for a in model.agents if isinstance(a, Person) and a.state == Health.RECOVERED
+    )
+
+
+def count_vaccinated(model: Model):
+    """Counts the number of agents that are currently vaccinated"""
+    return sum(
+        1
+        for a in model.agents
+        if isinstance(a, Person) and a.state == Health.VACCINATED
+    )
+
+
+def count_total(model: Model):
+    """Counts the number of agents in the simulation"""
+    return sum(1 for _ in model.agents)
 
 
 class InfectionModel(Model):
     """
-    Continuous-space infection spread model with separated radii:
+    Agent-based infection model in continuous 2D space.
 
-    - collision_radius: used only for velocity flip (collision proxy)
-    - contact_radius:   used only for infection proximity
-
-    Distancing scales contact_radius; hygiene scales infection_prob.
+    Attributes:
+        width: Width of the simulation space.
+        height: Height of the simulation space.
+        space: Mesa ContinuousSpace with toroidal wrapping.
+        config: SimulationConfig containing all model parameters.
+        datacollector: Collects population counts at each time step.
+        running: Whether the simulation should continue (stops when no susceptibles remain).
     """
 
-    def __init__(
-        self,
-        N=120,
-        width=100,
-        height=100,
-        speed=2.0,
-        collision_radius=1.0,
-        contact_radius=3.0,
-        infection_prob=0.35,
-        vaccinated_effect=0.5,
-        vaccinated_rate=0.0,
-        initial_infected=3,
-        seed=None,
-    ):
-        super().__init__()
-        if seed is not None:
-            random.seed(seed)
-
-        # parameters
-        self.collision_radius = float(collision_radius)
-        self.contact_radius = float(contact_radius)
-        self.infection_prob = max(0.0, min(1.0, float(infection_prob)))
-        self.vaccinated_effect = max(0.0, min(1.0, float(vaccinated_effect)))
-
-        # domain
-        self.width, self.height = width, height
-        self.space = ContinuousSpace(width, height, torus=True)
+    def __init__(self, config: SimulationConfig):
+        super().__init__(seed=config.seed)
+        random.seed(config.seed)
+        self.width = config.world.width
+        self.height = config.world.height
+        self.space = ContinuousSpace(self.width, self.height, torus=True)
+        self.config = config
 
         # agents
-        for i in range(N):
+        for i in range(config.population.num_people):
             state = Health.SUSCEPTIBLE
-            if i < initial_infected:
+            if i < config.population.initial_infected:
                 state = Health.INFECTED
-            elif random.random() < max(0.0, min(1.0, vaccinated_rate)):
+            elif random.random() < max(
+                0.0, min(1.0, config.population.vaccinated_rate)
+            ):
                 state = Health.VACCINATED
 
-            a = Person(self, speed=speed, state=state)
+            a = Person(self, speed=config.world.speed, state=state)
             self.space.place_agent(
-                a, (random.uniform(0, width), random.uniform(0, height))
+                a,
+                (
+                    random.uniform(0, config.world.width),
+                    random.uniform(0, config.world.height),
+                ),
             )
 
         # data
         self.datacollector = DataCollector(
             model_reporters={
-                "Infected": count_infected,
                 "Susceptible": count_susceptible,
+                "Infected": count_infected,
+                "Recovered": count_recovered,
+                "Vaccinated": count_vaccinated,
                 "Total": count_total,
             }
         )
@@ -89,7 +105,5 @@ class InfectionModel(Model):
         """Advance one tick and stop once no susceptibles remain."""
         self.datacollector.collect(self)
         self.agents.shuffle_do("step")
-        if all(
-            isinstance(a, Person) and a.state != Health.SUSCEPTIBLE for a in self.agents
-        ):
+        if count_infected(self) == 0:
             self.running = False
