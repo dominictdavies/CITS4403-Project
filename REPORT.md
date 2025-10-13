@@ -1,7 +1,7 @@
 # **Simulation of Infection Spread Using a Continuous-Space Agent-Based Model**
 
 **Team Members:** Dominic Davies (23431003), Jingwei Luo (23875736)
-**Date Submitted:** 9 October 2025
+**Date Submitted:** 13 October 2025
 
 **Libraries**: Python 3.13, Mesa 3.3.0, Matplotlib, Pandas (visualisation branch uses Pygame)
 
@@ -250,10 +250,10 @@ To reproduce results:
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-jupyter lab notebooks/experiments.ipynb
+jupyter lab notebooks/overview.ipynb
 ```
 
-To view the real-time visualisation:
+To run just the infection model:
 
 ```bash
 python -m src.main
