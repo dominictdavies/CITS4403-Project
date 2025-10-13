@@ -17,8 +17,6 @@ The system comprises two complementary components: a batch simulation framework 
 
 ------
 
-
-
 ## **2. Model Design**
 
 ### **2.1 Agent Representation**
@@ -78,8 +76,6 @@ These data are stored as CSV files and plotted to show how infection and suscept
 
 ------
 
-
-
 ## **3. Parameters and Scenarios**
 
 ### **3.1 Model Parameters**
@@ -110,11 +106,9 @@ These data are stored as CSV files and plotted to show how infection and suscept
 | Combined       | `vaccinated_rate = 0.5`, `distancing_factor = 0.7` | Layered intervention combining both effects |
 
 > ![all_scenarios_infected](/Users/leonce/Desktop/CITS4403-Project/outputs/all_scenarios_infected.png)
->  ![all_scenarios_susceptible](/Users/leonce/Desktop/CITS4403-Project/outputs/all_scenarios_susceptible.png)
+> ![all_scenarios_susceptible](/Users/leonce/Desktop/CITS4403-Project/outputs/all_scenarios_susceptible.png)
 
 ------
-
-
 
 ## **4. Results**
 
@@ -131,7 +125,6 @@ The experiments reveal consistent and interpretable trends across all scenarios.
 5. When both interventions are combined, the epidemic is smallest and most stable. The **combined scenario** produces the flattest curve, with minimal growth and early plateau. This confirms that layered strategies outperform single interventions in controlling spread.
 
 6. To validate correctness, a **real-time visualisation** built with *Pygame* was used. In this interface, agents appear as coloured dots—red for infected, yellow for susceptible, and blue for vaccinated. Observations show infection only occurs upon close contact and that boundary reflections behave properly.
-
 
 > ![image-20251009004922833](/Users/leonce/Library/Application Support/typora-user-images/image-20251009004922833.png)
 
@@ -150,8 +143,6 @@ The visual behaviour aligns with data results: dense infection clusters emerge i
 | Combined       | Very low       | Slowest         | ~60               | Strongest suppression |
 
 ------
-
-
 
 ## **5. Discussion**
 
@@ -207,8 +198,6 @@ Such additions could increase realism while preserving interpretability and educ
 
 ------
 
-
-
 ## **6. Conclusion**
 
 A continuous-space agent-based model was developed to simulate infection spread under different behavioural interventions. The results demonstrate that social distancing primarily slows the rate of transmission, hygiene reduces overall infections, vaccination limits both scale and duration, and their combination produces the strongest suppression effect.
@@ -216,8 +205,6 @@ A continuous-space agent-based model was developed to simulate infection spread 
 The inclusion of visualisation and reproducible experiments highlights how simple, individual-level rules can produce complex, emergent epidemic dynamics. The project’s modular structure and clear outputs make it a strong foundation for future work on recovery processes, networked populations, and adaptive behaviours.
 
 ------
-
-
 
 ## **Appendix A. Reproducibility**
 
@@ -235,7 +222,7 @@ Pygame 2.6.1
 
 ### **A.2 File Structure**
 
-```
+```text
 CITS4403-Project/
   ├─ src/
   │   ├─ agents.py
