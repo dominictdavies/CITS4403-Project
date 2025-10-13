@@ -226,15 +226,19 @@ Pygame 2.6.1
 CITS4403-Project/
   ├─ src/
   │   ├─ agents.py
+  │   ├─ main.py
   │   ├─ model.py
   │   ├─ visualisation.py
   │   └─ __init__.py
   ├─ notebooks/
-  │   └─ experiments.ipynb
+  │   └─ overview.ipynb
   ├─ outputs/
   │   ├─ all_scenarios_infected.png
   │   ├─ all_scenarios_susceptible.png
   │   └─ scenario CSVs
+  ├─ utils/
+  │   ├─ config.py
+  │   └─ __init__.py
   └─ requirements.txt
 ```
 
