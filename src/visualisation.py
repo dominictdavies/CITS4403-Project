@@ -3,8 +3,9 @@
 # pylint: disable=no-member
 
 import pygame
+
+from src.agents import Health, Person
 from src.model import InfectionModel
-from src.agents import Person, Health
 
 
 def draw_model(screen: pygame.Surface, model: InfectionModel, scale: int) -> None:
@@ -23,14 +24,12 @@ def draw_model(screen: pygame.Surface, model: InfectionModel, scale: int) -> Non
         if not isinstance(agent, Person):
             continue
 
-        # Each agent has a .pos attribute: (x, y) in model.space coordinates
+        # Convert agent position to pixel coordinates
         x, y = agent.pos  # type: ignore
-
-        # Convert to pixel coordinates
         px = int(x * scale)
         py = int(y * scale)
 
-        # You can color agents by type or state if desired
+        # Colour agents by health state
         if agent.state == Health.SUSCEPTIBLE:
             color = (255, 255, 0)
         elif agent.state == Health.INFECTED:
