@@ -7,4 +7,4 @@ from utils.config import SimulationConfig
 if __name__ == "__main__":
     config = SimulationConfig()
     model = InfectionModel(config=config)
-    run_simulation(model, fps=60)
+    run_simulation(model)
