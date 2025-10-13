@@ -9,19 +9,36 @@ from utils.config import SimulationConfig
 from .agents import Health, Person
 
 
-def count_infected(m):
-    return sum(
-        1 for a in m.agents if isinstance(a, Person) and a.state == Health.INFECTED
-    )
-
-
 def count_susceptible(m):
+    """Counts the number of agents that are currently susceptible"""
     return sum(
         1 for a in m.agents if isinstance(a, Person) and a.state == Health.SUSCEPTIBLE
     )
 
 
+def count_infected(m):
+    """Counts the number of agents that are currently infected"""
+    return sum(
+        1 for a in m.agents if isinstance(a, Person) and a.state == Health.INFECTED
+    )
+
+
+def count_recovered(m):
+    """Counts the number of agents that are currently recovered"""
+    return sum(
+        1 for a in m.agents if isinstance(a, Person) and a.state == Health.RECOVERED
+    )
+
+
+def count_vaccinated(m):
+    """Counts the number of agents that are currently vaccinated"""
+    return sum(
+        1 for a in m.agents if isinstance(a, Person) and a.state == Health.VACCINATED
+    )
+
+
 def count_total(m):
+    """Counts the number of agents in the simulation"""
     return sum(1 for _ in m.agents)
 
 
@@ -65,8 +82,10 @@ class InfectionModel(Model):
         # data
         self.datacollector = DataCollector(
             model_reporters={
-                "Infected": count_infected,
                 "Susceptible": count_susceptible,
+                "Infected": count_infected,
+                "Recovered": count_recovered,
+                "Vaccinated": count_vaccinated,
                 "Total": count_total,
             }
         )
