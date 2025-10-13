@@ -1,6 +1,7 @@
 """Infection model using Mesa agent-based modelling framework."""
 
 import random
+import sys
 
 from mesa import Model
 from mesa.datacollection import DataCollector
@@ -99,11 +100,9 @@ class InfectionModel(Model):
             }
         )
 
-        self.running = True
-
     def step(self):
         """Advance one tick and stop once no susceptibles remain."""
         self.datacollector.collect(self)
         self.agents.shuffle_do("step")
         if count_infected(self) == 0:
-            self.running = False
+            sys.exit(0)
