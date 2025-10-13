@@ -1,3 +1,5 @@
+"""Infection model using Mesa agent-based modelling framework."""
+
 import random
 
 from mesa import Model
