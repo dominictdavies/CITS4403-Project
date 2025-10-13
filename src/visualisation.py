@@ -2,6 +2,8 @@
 
 # pylint: disable=no-member
 
+from typing import Optional
+
 import pygame
 
 from src.agents import Health, Person
@@ -44,10 +46,12 @@ def draw_model(screen: pygame.Surface, model: InfectionModel, scale: int) -> Non
         pygame.draw.circle(screen, color, (px, py), 5)
 
 
-def is_simulation_running() -> bool:
+def is_simulation_running(model: InfectionModel) -> bool:
     """
     Handle Pygame events and determine whether the simulation should continue.
 
+    Args:
+        model (InfectionModel): The simulation model to check.
     Returns:
         bool: True if the simulation should continue running, False if the
         user has requested to quit.
@@ -56,17 +60,19 @@ def is_simulation_running() -> bool:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             return False
-    return True
+    return model.running
 
 
-def run_simulation(model: InfectionModel, fps: int = 30, scale: int = 1) -> None:
+def run_simulation(
+    model: InfectionModel, fps: Optional[int] = None, scale: int = 1
+) -> None:
     """
     Run the InfectionModel simulation using a Pygame visualization loop.
 
     Args:
         model (InfectionModel): The simulation model to visualize and step.
         fps (int, optional): Target frames per second for the update loop.
-            Defaults to 30.
+            Defaults to no target.
         scale (int, optional): Scaling factor to convert model coordinates to
             pixels. Defaults to 1.
     """
@@ -76,10 +82,11 @@ def run_simulation(model: InfectionModel, fps: int = 30, scale: int = 1) -> None
     screen = pygame.display.set_mode((model.width * scale, model.height * scale))
     clock = pygame.time.Clock()
 
-    while is_simulation_running():
+    while is_simulation_running(model):
         model.step()
         draw_model(screen, model, scale)
         pygame.display.flip()
-        clock.tick(fps)
+        if fps is not None:
+            clock.tick(fps)
 
     pygame.quit()
