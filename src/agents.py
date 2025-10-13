@@ -65,7 +65,7 @@ class Person(Agent):
         )
         for other in neighbors:
             if isinstance(other, Person) and other.state == Health.INFECTED:
-                p = self.infection_model.infection_prob
+                p = self.infection_model.frame_infection_prob
 
                 if (
                     self.state == Health.RECOVERED
@@ -87,7 +87,7 @@ class Person(Agent):
 
         if (
             self.state == Health.INFECTED
-            and random.random() < self.infection_model.recover_prob_per_frame
+            and random.random() < self.infection_model.frame_recover_prob
         ):
             self.state = Health.RECOVERED
 
