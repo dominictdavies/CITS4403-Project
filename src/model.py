@@ -11,47 +11,54 @@ from utils.config import SimulationConfig
 from .agents import Health, Person
 
 
-def count_susceptible(m):
+def count_susceptible(model: Model):
     """Counts the number of agents that are currently susceptible"""
     return sum(
-        1 for a in m.agents if isinstance(a, Person) and a.state == Health.SUSCEPTIBLE
+        1
+        for a in model.agents
+        if isinstance(a, Person) and a.state == Health.SUSCEPTIBLE
     )
 
 
-def count_infected(m):
+def count_infected(model: Model):
     """Counts the number of agents that are currently infected"""
     return sum(
-        1 for a in m.agents if isinstance(a, Person) and a.state == Health.INFECTED
+        1 for a in model.agents if isinstance(a, Person) and a.state == Health.INFECTED
     )
 
 
-def count_recovered(m):
+def count_recovered(model: Model):
     """Counts the number of agents that are currently recovered"""
     return sum(
-        1 for a in m.agents if isinstance(a, Person) and a.state == Health.RECOVERED
+        1 for a in model.agents if isinstance(a, Person) and a.state == Health.RECOVERED
     )
 
 
-def count_vaccinated(m):
+def count_vaccinated(model: Model):
     """Counts the number of agents that are currently vaccinated"""
     return sum(
-        1 for a in m.agents if isinstance(a, Person) and a.state == Health.VACCINATED
+        1
+        for a in model.agents
+        if isinstance(a, Person) and a.state == Health.VACCINATED
     )
 
 
-def count_total(m):
+def count_total(model: Model):
     """Counts the number of agents in the simulation"""
-    return sum(1 for _ in m.agents)
+    return sum(1 for _ in model.agents)
 
 
 class InfectionModel(Model):
     """
-    Continuous-space infection spread model with separated radii:
+    Agent-based infection model in continuous 2D space.
 
-    - collision_radius: used only for velocity flip (collision proxy)
-    - contact_radius:   used only for infection proximity
-
-    Distancing scales contact_radius; hygiene scales frame_infection_prob.
+    Attributes:
+        width: Width of the simulation space.
+        height: Height of the simulation space.
+        space: Mesa ContinuousSpace with toroidal wrapping.
+        config: SimulationConfig containing all model parameters.
+        datacollector: Collects population counts at each time step.
+        running: Whether the simulation should continue (stops when no susceptibles remain).
     """
 
     def __init__(self, config: SimulationConfig):
@@ -98,7 +105,5 @@ class InfectionModel(Model):
         """Advance one tick and stop once no susceptibles remain."""
         self.datacollector.collect(self)
         self.agents.shuffle_do("step")
-        if all(
-            isinstance(a, Person) and a.state != Health.SUSCEPTIBLE for a in self.agents
-        ):
+        if count_infected(self) == 0:
             self.running = False
