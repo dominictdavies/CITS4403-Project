@@ -9,7 +9,7 @@
 
 ## **1. Introduction**
 
-This project presents an agent-based model (ABM) that simulates the spread of an infectious disease within a dynamic population. The model aims to demonstrate how behavioural interventions—such as social distancing, personal hygiene, and vaccination—affect infection dynamics in a simple but interpretable system.
+This project presents an agent-based model (ABM) that simulates the spread of an infectious disease within a dynamic population. The model aims to demonstrate how interventions—such as vaccination—affect infection dynamics in a simple but interpretable system.
 
 Unlike traditional SIR models that treat populations as homogeneous, the ABM framework explicitly represents individuals as autonomous agents moving in continuous space. This allows direct modelling of local interactions, stochastic transmission, and spatial clustering, offering more realistic insights into how microscopic contacts produce macroscopic epidemic outcomes.
 
@@ -25,17 +25,17 @@ Each agent represents a person capable of movement, contact, and infection. Agen
 
 1. **Position** in continuous 2D space (`pos`)
 2. **Velocity** (direction and magnitude)
-3. **Health state**: `SUSCEPTIBLE`, `INFECTED`, or `VACCINATED`
+3. **Health state**: `SUSCEPTIBLE`, `INFECTED`, `RECOVERED` or `VACCINATED`
 
-At each simulation step, agents move, reflect off boundaries, and check for neighbours within a contact radius. If a susceptible agent encounters an infected one, transmission may occur with a certain probability.
+At each simulation step, agents move and check for neighbours within a contact radius. If a susceptible agent encounters an infected one, transmission may occur with a certain probability. Upon crossing the edge of the simulation, the agent wraps around to the opposite side, causing the space to act like a torus. The choice of torus-shaped space leads to behaviour akin to a busy town square with many people trying to move in different directions.
 
 ------
 
 ### **2.2 Movement and Space**
 
-The model operates within a **100 × 100 ContinuousSpace**, a finite area with reflective boundaries. Agents bounce off walls, maintaining constant speed and random direction. This behaviour emulates movement in an enclosed environment, such as a building or small community area.
+The model operates within a **ContinuousSpace**, a finite area with wraparound boundaries. Agents maintain constant speed in random directions which emulates movement in a busy environment, such as a building or community area.
 
-Neighbourhood detection uses Mesa’s spatial index, where each agent retrieves neighbours within a **collision radius**. This radius simultaneously defines both physical collision distance and infection contact range. Although simplified, this dual use captures spatial dynamics effectively while keeping parameters minimal.
+Neighbourhood detection uses Mesa’s spatial index, where each agent retrieves neighbours within a **collision radius**. This radius defines a physical collision distance. The infection **contact range** is stored separately, and only slightly larger than the collision radius by default.
 
 ------
 
@@ -45,23 +45,21 @@ During each step:
 
 1. Each agent updates its position based on velocity.
 2. If a susceptible agent finds an infected neighbour within `collision_radius`, infection occurs with probability:
-    $P_{infect} = infection_prob \times hygiene_factor \times (1 - vaccinated_effect)$
+    $P_{infect} = infection_prob \times (1 - vaccinated_effect | recovered_effect)$
 
 where:
 
 - `infection_prob` is the base probability of infection per contact,
-- `hygiene_factor` modifies transmission likelihood (values <1 reduce risk),
 - `vaccinated_effect` reduces infection risk for vaccinated individuals.
-
-Once infected, agents remain infected for the remainder of the simulation. This monotonic design simplifies interpretation and highlights relative intervention effects without introducing recovery timing.
+- `recovered_effect` also reduces infection risk for those that have recovered from the infection.
 
 ------
 
 ### **2.4 Scheduling and Randomness**
 
-The model uses Mesa’s **RandomActivation** scheduler, ensuring agents are updated in random order each step. This prevents systematic bias caused by fixed update sequences.
+The model uses Mesa’s **shuffle_do("step")** function, ensuring agents are updated in random order each step. This prevents systematic bias caused by fixed update sequences.
 
-The simulation terminates when all susceptible agents have been infected or when it reaches a 5,000-step cap. Random seeds are fixed to guarantee reproducibility across runs.
+The simulation terminates when all susceptible agents have been infected. Random seeds are fixed to guarantee reproducibility across runs.
 
 ------
 
@@ -69,10 +67,12 @@ The simulation terminates when all susceptible agents have been infected or when
 
 A `DataCollector` tracks model-level variables:
 
-- Number of **Infected** agents
 - Number of **Susceptible** agents
+- Number of **Infected** agents
+- Number of **Recovered** agents
+- Number of **Vaccinated** agents
 
-These data are stored as CSV files and plotted to show how infection and susceptibility evolve over time.
+This data is stored as CSV files and plotted to show how infection, susceptibility, and recovery evolves over time.
 
 ------
 
@@ -83,27 +83,27 @@ These data are stored as CSV files and plotted to show how infection and suscept
 | Parameter             | Symbol  | Description                                        |
 | --------------------- | ------- | -------------------------------------------------- |
 | Population size       | N       | Total number of agents                             |
-| Simulation area       | W × H   | Continuous 2D space (100 × 100)                    |
+| Simulation area       | W × H   | Continuous 2D space                                |
 | Agent speed           | v       | Distance moved per step                            |
-| Collision radius      | r₍c₎    | Range for physical collision and infection contact |
-| Infection probability | p₍inf₎  | Base probability per encounter                     |
+| Collision radius      | r₍c₎    | Range for physical collision                       |
+| Contact radius        | r₍d₎    | Range for infection contact                        |
+| Infection probability | p₍inf₎  | Infection probability per frame while in contact   |
+| Recovery probability  | p₍rec₎  | Recovery probability per frame while in contact    |
 | Vaccination rate      | v₍rate₎ | Fraction initially vaccinated                      |
-| Hygiene factor        | h       | Scales infection probability (0–1)                 |
-| Distancing factor     | d       | Scales contact radius                              |
-| Vaccine effect        | v₍eff₎  | Infection reduction for vaccinated                 |
+| Vaccine effect        | v₍veff₎ | Infection reduction for vaccinated                 |
+| Recovery effect       | v₍reff₎ | Infection reduction for recovered                  |
 | Random seed           | s       | Ensures reproducibility                            |
 
 ------
 
 ### **3.2 Experimental Scenarios**
 
-| Scenario       | Parameter Change                                   | Interpretation                              |
-| -------------- | -------------------------------------------------- | ------------------------------------------- |
-| Baseline       | Default settings                                   | Reference for comparison                    |
-| Distancing     | `distancing_factor = 0.6`                          | Reduces frequency of contact                |
-| Better Hygiene | `hygiene_factor = 0.7`                             | Reduces infection probability per contact   |
-| 50% Vaccinated | `vaccinated_rate = 0.5`                            | Introduces partial immunity                 |
-| Combined       | `vaccinated_rate = 0.5`, `distancing_factor = 0.7` | Layered intervention combining both effects |
+| Scenario       | Parameter Change | Interpretation                              |
+| -------------- | -----------------| ------------------------------------------- |
+| Baseline       | 0% vaccinated    | Infection explosion for comparison          |
+| 20% Vaccinated | 20% vaccinated   | Slightly better protection, still explosion |
+| 60% Vaccinated | 60% vaccinated   | Just before full herd immunity effect       |
+| 65% Vaccinated | 65% vaccinated   | Just after full herd immunity effect        |
 
 > ![all_scenarios_infected](/Users/leonce/Desktop/CITS4403-Project/outputs/all_scenarios_infected.png)
 > ![all_scenarios_susceptible](/Users/leonce/Desktop/CITS4403-Project/outputs/all_scenarios_susceptible.png)
