@@ -1,140 +1,102 @@
-# **CITS4403-Project: Continuous-Space Infection Simulation**
+# CITS4403-Project: Continuous-Space Infection Simulation
 
-### **Overview**
-
-This project implements a continuous-space agent-based infection model (ABM) using **Mesa 3.3.0** and **Pygame 2.6.1**.
-Agents move in a 2D environment, interact through collisions, and transmit infection probabilistically.
-The model supports interventions such as **social distancing**, **hygiene improvement**, **vaccination**, and **recovery**, forming a simplified **SIRV** dynamic system.
-
-The repository includes both a **batch experiment mode** (for generating CSVs and plots) and a **live visualisation** (for real-time observation of infection spread).
+## Overview
+A continuous-space agent-based infection model (ABM) built with **Mesa 3.3.0** and a live visualiser using **Pygame 2.6.1**.  
+Agents move in a 2D plane, collide, and transmit infection probabilistically. The current model includes **vaccination** and **recovery** (SIRV-style dynamics).  
+We provide a **Jupyter notebook** for batch experiments and a **real-time visualisation** for demonstrations.
 
 ---
 
-## **1. Setup Instructions**
-
-1. Ensure the current working directory is the project root.
-2. Create and activate a Python virtual environment:
-
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
-3. Install dependencies:
-
-   ```bash
-   pip install --upgrade pip
-   pip install -r requirements.txt
-   ```
-4. (Optional) Enable automatic formatting before each commit:
-
-   ```bash
-   pip install pre-commit
-   pre-commit install
-   ```
-
----
-
-## **2. Usage Guide**
-
-### **Run the Model (Batch Simulation)**
+## 1) Setup
 
 ```bash
-python -m src.experiments
+cd CITS4403-Project
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+````
+
+*(Optional – formatting on commit)*
+
+```bash
+pip install pre-commit
+pre-commit install
 ```
-
-This will:
-
-* Run multiple infection scenarios (baseline, distancing, hygiene, vaccination, combined).
-* Save per-scenario results in `outputs/` as `.csv` files.
-* Generate plots:
-
-  * `all_scenarios_infected.png`
-  * `all_scenarios_susceptible.png`
 
 ---
 
-### **Run Real-Time Visualisation**
+## 2) How to Run
+
+### A. Live visualisation (Pygame)
 
 ```bash
 python -m src.main
 ```
 
-A Pygame window will open showing moving agents:
+A window opens:
 
-* 🟥 **Infected**
-* 🟨 **Susceptible**
-* 🟩 **Recovered**
-* 🟦 **Vaccinated**
+* 🟨 Susceptible
+* 🟥 Infected
+* 🟩 Recovered
+* 🟦 Vaccinated
 
-You can observe the spread and recovery in real time.
-Close the window to end the simulation.
+Close the window to end.
 
----
+### B. Batch experiments (Notebook)
 
-## **3. Parameters**
-
-| Parameter           | Description                            | Typical Value |
-| ------------------- | -------------------------------------- | ------------- |
-| `N`                 | Total number of agents                 | 120           |
-| `width`, `height`   | Simulation area                        | 100 × 100     |
-| `speed`             | Movement speed                         | 1.0           |
-| `infection_prob`    | Base probability of infection          | 0.35          |
-| `collision_radius`  | Contact range                          | 3.0           |
-| `hygiene_factor`    | Transmission modifier (<1 lowers risk) | 1.0 or 0.7    |
-| `distancing_factor` | Scales collision radius                | 1.0 or 0.6    |
-| `vaccinated_rate`   | Initial vaccinated proportion          | 0.5           |
-| `vaccinated_effect` | Risk reduction for vaccinated          | 0.5           |
-| `recovery_chance`   | Per-step chance of recovery            | 0.01          |
-| `seed`              | Random seed                            | 42            |
-
-All configuration constants are now stored in `utils/config.py` for clarity.
-
----
-
-## **4. Project Structure**
-
-```
-CITS4403-Project/
-├─ src/
-│  ├─ agents.py              # Agent definitions and health logic
-│  ├─ model.py               # InfectionModel implementation
-│  ├─ main.py                # Visualisation entry point
-│  ├─ experiments.py         # Batch simulation
-│  └─ __init__.py
-│
-├─ notebooks/
-│  └─ overview.ipynb         # Updated notebook with herd immunity analysis
-│
-├─ utils/
-│  └─ config.py              # Centralised parameters and constants
-│
-├─ outputs/                  # Auto-generated results (CSVs and PNGs)
-├─ requirements.txt
-├─ .pre-commit-config.yaml   # Formatting config (black + isort)
-└─ README.md
+```bash
+jupyter lab notebooks/overview.ipynb
 ```
 
----
+Run all cells to generate figures into `outputs/`.
+The current notebook exports vaccination-comparison plots:
 
-## **5. Example Output**
-
-**Plots**
-
-* `outputs/all_scenarios_infected.png`
-* `outputs/all_scenarios_susceptible.png`
-* `outputs/herd_immunity_comparison.png` 
-
-**CSV Results**
-
-* `outputs/baseline.csv`
-* `outputs/distancing.csv`
-* `outputs/better_hygiene.csv`
-* `outputs/50%_vaccinated.csv`
-* `outputs/combined.csv`
+* `outputs/0_vaccinated.png`
+* `outputs/20_vaccinated.png`
+* `outputs/60_vaccinated.png`
+* `outputs/65_vaccinated.png`
 
 ---
 
-**Authors:**
+## 3) Parameters
 
-* *Dominic Davies (23431003)* 
-* *Jingwei Luo (23875736)* 
+Parameters are defined in the codebase (see `src/model.py` and `src/agents.py`, e.g. in `InfectionModel` and agent logic).
+Typical knobs:
+
+* `N`, `width`, `height`, `speed`
+* `infection_prob`, `collision_radius`
+* `vaccinated_rate`, `vaccinated_effect`
+* `recovery_chance`
+* `hygiene_factor`, `distancing_factor`
+* `seed`
+
+---
+
+## 4) Project Layout
+
+```
+notebooks/
+  overview.ipynb
+outputs/
+  0_vaccinated.png
+  20_vaccinated.png
+  60_vaccinated.png
+  65_vaccinated.png
+src/
+  __init__.py
+  agents.py
+  model.py
+  main.py
+  visualisation.py
+README.md
+REPORT.md
+requirements.txt
+```
+
+---
+
+## 5) Example Outputs
+
+The four PNGs under `outputs/` compare infection trajectories at different vaccination rates (0%, 20%, 60%, 65%).
+Use the Pygame visualiser for live demonstrations and screenshots.
