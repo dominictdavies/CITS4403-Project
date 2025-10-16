@@ -38,10 +38,10 @@ A window opens:
 
 * 🟨 Susceptible
 * 🟥 Infected
-* 🟩 Recovered
+* ⬜ Recovered
 * 🟦 Vaccinated
 
-Close the window to end.
+Wait for no infected to remain in the simulation, or close the window to end.
 
 ### B. Batch experiments (Notebook)
 
@@ -49,26 +49,28 @@ Close the window to end.
 jupyter lab notebooks/overview.ipynb
 ```
 
-Run all cells to generate figures into `outputs/`.
-The current notebook exports vaccination-comparison plots:
+Run all cells to generate the figures present in `outputs/`.
+The current vaccination-comparison plots in `outputs/` are:
 
-* `outputs/0_vaccinated.png`
-* `outputs/20_vaccinated.png`
-* `outputs/60_vaccinated.png`
-* `outputs/65_vaccinated.png`
+* `0_vaccinated.png`
+* `20_vaccinated.png`
+* `60_vaccinated.png`
+* `65_vaccinated.png`
+
+For 0%, 20%, 60%, and 65% vaccination rates respectively.
 
 ---
 
 ## 3) Parameters
 
-Parameters are defined in the codebase (see `src/model.py` and `src/agents.py`, e.g. in `InfectionModel` and agent logic).
-Typical knobs:
+The following parameters are passed into the model from `src/main.py`:
 
-* `N`, `width`, `height`, `speed`
-* `infection_prob`, `collision_radius`
-* `vaccinated_rate`, `vaccinated_effect`
-* `recovery_chance`
-* `hygiene_factor`, `distancing_factor`
+* `num_people`, `initial_infected`, `vaccinated_rate`, `vaccinated_effect`, `recovered_effect`
+
+More parameters may be adjusted by using the config types from `utils/config.py`:
+
+* `width`, `height`, `speed`, `collision_radius`
+* `contact_radius`, `frame_infection_prob`, `frame_recover_prob`
 * `seed`
 
 ---
@@ -89,6 +91,9 @@ src/
   model.py
   main.py
   visualisation.py
+utils/
+  __init__.py
+  config.py
 README.md
 REPORT.md
 requirements.txt
